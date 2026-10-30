@@ -1,0 +1,25 @@
+### Intellij ###
+.idea/
+**/out/*
+!**/out/.gitkeep
+.idea_modules/
+*.iml
+modules.xml
+*.ipr
+.vscode/
+
+### Java ###
+**/doc/*
+!**/doc/.gitkeep
+*.class
+*.log
+*.ctxt
+*.jar
+*.zip
+*.tar.gz
+*.rar
+
+!**/deps/*.jar
+
+### UML ###
+**/uml/*.png

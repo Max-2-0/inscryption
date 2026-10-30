@@ -1,0 +1,14 @@
+package inscryption.affichage;
+
+public enum Etape {
+    CHOIX_ACTION,
+    CHOIX_CARTE_MAIN,
+    CHOIX_SACRIFICE,
+    CHOIX_SACRIFICE_LIBRE,
+    CHOIX_SLOT,
+    CHOIX_CARTE_AJOUT,
+    CHOIX_SACRIFICE_PIERRE,
+    CHOIX_CIBLE_PIERRE,
+    FIN_PARTIE,
+    FIN_JEU
+}

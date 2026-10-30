@@ -1,0 +1,108 @@
+@startuml inscryption
+
+package inscryption {
+    class Inscryption {
+        - m_affichage : Affichage
+        - m_joueur : Joueur
+        - m_ia : Joueur
+        - m_plateau : Plateau
+        - m_tour : int
+        + <<create>> Inscryption()
+        + initialiserPartie() : void
+        + jouerTour() : void
+    }
+
+    package affichage {
+        class Affichage {
+            - ecran : Screen
+            + <<create>> Affichage()
+            + initEcran() : void
+            + afficherPlateau(plateau : Plateau) : void
+            - afficherRang(rang : Rang, cartes : Carte[]) : void
+            - afficherCarte(carte : Carte, x : int, y : int) : void
+            - afficherMain(main : Rang) : void
+            - afficherActions(actions : String[]) : void
+        }
+    }
+
+    package logique {
+
+        class Joueur {
+            - main : Rang
+            - pioche : Stack<Carte>
+            + <<create>> Joueur()
+            + piocher() : Carte
+        }
+
+        class Rang {
+            - m_slots : Carte[4]
+            + <<create>> Rang()
+            + ajouterCarte(numeroSlot : int, carte : Carte) : boolean
+            + retirerCarte(numeroSlot : int) : boolean
+        }
+
+        class Plateau {
+            - rang_e : Rang
+            - rang_a : Rang
+            - rang_b : Rang
+            + <<create>> Plateau()
+            + ajouterCarte(nomRang : char, carte : Carte) : void
+            + obtenirListeCartes(nomRang : char) : ArrayList<Carte>
+        }
+
+        package carte {
+            enum Stat {
+                Attaque
+                Vie
+                Sang
+                Os
+            }
+
+
+            class Animal {
+                - m_nom : String
+                - m_attaque : int
+                - m_sang : int
+                - m_os : int
+                - m_volant : boolean
+                + <<create>> Animal(nom : String, attaque : int, vie : int, sang : int, os : int, volant : boolean)
+                + get_stat(type : Stat) : int
+            }
+
+            class Obstacle {
+                + <<create>> Obstacle(vie : int)
+                + get_stat(type : Stat) : int
+            }
+
+
+            abstract Carte {
+                - m_active : boolean
+                - m_vie : int
+                + <<create>> Carte()
+                + estActive() : boolean
+                + defausser() : void
+                + infligerDegats(degats : int, other : Carte) : void
+                + recevoirDegats(degats : int) : void
+            }
+        }
+    }
+
+
+}
+
+package Lanterna {
+    class Screen {}
+
+}
+
+Animal --|> Carte
+Animal --> Stat
+Obstacle --|> Carte
+Inscryption --> Affichage
+Plateau --> Rang
+Inscryption --> Joueur : joueur
+Inscryption --> Joueur : ia
+Inscryption --> Plateau
+Affichage --> Screen
+
+@enduml

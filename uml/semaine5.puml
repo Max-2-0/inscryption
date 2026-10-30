@@ -1,0 +1,367 @@
+@startuml inscryption
+
+package inscryption {
+
+    class Inscryption {
+        - m_affichage : Affichage
+        - m_joueur : Joueur
+        - m_ia : Joueur
+        - m_plateau : Plateau
+        - m_gererTouches : GererTouches
+        - m_scoreJoueur : int
+        - m_scoreIa : int
+        - m_partie : int
+        - m_partiesGagnees : int
+        - m_piocherEffectue : boolean
+        - m_jeuEnCours : boolean
+        - m_partieEnCours : boolean
+        - m_message : String
+        - m_cartesProposees : ArrayList<Carte>
+        - m_indexCarteEnCoursPlacement : int
+        - m_sangNecessaire : int
+        - m_tourCourant : int
+        - m_pierrePending : boolean
+        - m_cartesSacrifieesCeTour : HashSet<Carte>
+        + <<create>> Inscryption()
+        + initialiserPartie()
+        + mainLoop()
+        + mainLoopFin()
+        + fermer()
+        + piocher()
+        + demarrerPlacement(indexMain : int) : boolean
+        + sacrifierCartePour(slotPlateau : int)
+        + sacrifierCarteLibre(slotPlateau : int)
+        + placerCarte(indexMain : int, slot : int) : boolean
+        + setMessage(message : String)
+        + finDeTour()
+        + verifierFinJeu() : boolean
+        + passerPartieSuivante()
+        + ajouterCarteChoisie(index : int)
+        + preparerPierreSacrifice()
+        + sacrifierPourPierre(index : int)
+        + appliquerPouvoirPierre(index : int)
+        + getJoueur() : Joueur
+        + getIa() : Joueur
+        + getPlateau() : Plateau
+        + getScoreJoueur() : int
+        + getScoreIa() : int
+        + getPartie() : int
+        + getMessage() : String
+        + getCartesProposees() : ArrayList<Carte>
+        + isJeuEnCours() : boolean
+        + isPartieEnCours() : boolean
+        + isPierrePending() : boolean
+        + getPiocheJoueur() : ArrayList<Carte>
+    }
+
+    package affichage {
+
+        enum Action {
+            FIN
+            PIOCHER
+            PLACER
+            SACRIFIER
+            {static} MAX_ACTION : int
+            + getValue() : int
+            {static} + fromValue(value : int) : Action
+        }
+
+        enum Etape {
+            CHOIX_ACTION
+            CHOIX_CARTE_MAIN
+            CHOIX_SACRIFICE
+            CHOIX_SACRIFICE_LIBRE
+            CHOIX_SLOT
+            CHOIX_CARTE_AJOUT
+            CHOIX_SACRIFICE_PIERRE
+            CHOIX_CIBLE_PIERRE
+            FIN_PARTIE
+            FIN_JEU
+        }
+
+        class GererTouches {
+            - m_etape : Etape
+            - m_slotSelected : int
+            - m_slotMainSelected : int
+            - m_tailleMain : int
+            - m_actionSelected : Action
+            - m_inscryption : Inscryption
+            + <<create>> GererTouches(inscryption : Inscryption)
+            + acheminer(key : KeyStroke)
+            + gererErreur(e : IOException)
+            + getEtape() : Etape
+            + setEtape(etape : Etape)
+            + get_slotSelected() : int
+            + get_slotMainSelected() : int
+            + get_actionSelected() : Action
+        }
+
+        class Affichage {
+            - m_ecran : Screen
+            - m_tg : TextGraphics
+            - m_gererTouches : GererTouches
+            {static} + CARTE_WIDTH : int
+            {static} + CARTE_HEIGHT : int
+            {static} + CARTE_PADDING : int
+            + <<create>> Affichage(gererTouches : GererTouches)
+            + affichageJeu(inscryption : Inscryption)
+            + affichagePlateau(plateau : Plateau, x : int, y : int, inscryption : Inscryption)
+            + effacer()
+            + rafraichir()
+            + fermer()
+            + waitForKey() : KeyStroke
+        }
+
+        package components {
+            class Cadre {
+                - m_x : int
+                - m_y : int
+                - m_height : int
+                - m_width : int
+                + <<create>> Cadre(x : int, y : int, height : int, width : int)
+                + draw(tg : TextGraphics, points : boolean)
+                + drawSeparation(tg : TextGraphics, line : int)
+                + drawTwoFromLeft(tg : TextGraphics)
+                + drawTwoFromRight(tg : TextGraphics)
+                + updateX(newX : int)
+                + updateY(newY : int)
+            }
+        }
+    }
+
+    package logique {
+
+        class Joueur {
+            - m_main : ArrayList<Carte>
+            - m_pioche : ArrayList<Carte>
+            - m_sang : int
+            - m_os : int
+            - m_pouvoirPierre : Optional<GenericPouvoir>
+            + <<create>> Joueur()
+            + piocher() : boolean
+            + ajouterCartePioche(carte : Carte)
+            + getTaillePioche() : int
+            + getTailleMain() : int
+            + getMain() : ArrayList<Carte>
+            + getPioche() : ArrayList<Carte>
+            + updateSang(sang : int)
+            + getSang() : int
+            + consommerSang(sang : int) : boolean
+            + updateOs(os : int)
+            + getOs() : int
+            + consommerOs(os : int) : boolean
+            + setPouvoirPierre(pouvoir : GenericPouvoir)
+            + getPouvoirPierre() : Optional<GenericPouvoir>
+            {static} + creerEcureuil() : Animal
+            {static} + creerHermine() : Animal
+            {static} + creerChat() : Animal
+            {static} + creerLouveteau() : Animal
+            {static} + creerLoup() : Animal
+            {static} + creerGrizzly() : Animal
+            {static} + creerCoyote() : Animal
+            {static} + creerMoineau() : Animal
+            {static} + creerCorbeau() : Animal
+            {static} + creerPunaise() : Animal
+            {static} + creerElan() : Animal
+            {static} + creerVipere() : Animal
+            {static} + creerPorcEpic() : Animal
+        }
+
+        class Rang {
+            - m_slots : Carte[4]
+            - m_nom : String
+            + <<create>> Rang(nom : String)
+            + <<create>> Rang()
+            + ajouterCarte(numeroSlot : int, carte : Carte) : boolean
+            + retirerCarte(numeroSlot : int) : boolean
+            + getCarte(numeroSlot : int) : Carte
+            + isSlotEmpty(numeroSlot : int) : boolean
+            + deplacerCarte(source : int, dest : int)
+            + getNom() : String
+        }
+
+        class Plateau {
+            - m_rangE : Rang
+            - m_rangA : Rang
+            - m_rangB : Rang
+            {static} + RANGS : Character[]
+            + <<create>> Plateau()
+            + ajouterCarte(rang : Character, slot : int, carte : Carte) : boolean
+            + getRangByCharacter(rang : Character) : Rang
+            + resolveAttaques(rangAttaquant : Character, rangDefenseur : Character) : int
+            + majTourCartes()
+        }
+
+        package carte {
+
+            abstract class Carte {
+                # m_active : boolean
+                # m_nom : String
+                # m_vie : int
+                # m_tourencours : int
+                # m_rang : Rang
+                # m_slot : int
+                # m_proprietaire : Joueur
+                + <<create>> Carte()
+                + placer(rang : Rang, slot : int)
+                + defausser()
+                + estActive() : boolean
+                + updateSlot(newSlot : int) : boolean
+                + getCoutSang() : int
+                + getCoutOs() : int
+                + peutEtrePlacee() : boolean
+                + modifierDegatsEntrants(degats : int) : int
+                + declencherEffetsAttaque(cible : Carte, degats : int)
+                + getNomPouvoir() : Optional<String>
+                + sacrifier(player : Joueur)
+                + activerEffetTour()
+                + getPouvoir() : Optional<GenericPouvoir>
+                + setPouvoir(pouvoir : GenericPouvoir)
+                + getSlot() : int
+                + getRang() : Rang
+                + getNom() : String
+                + getVie() : int
+                + getTourEnCours() : int
+                + updateTourEnCours()
+                + getNomRang() : String
+                + setProprietaire(joueur : Joueur)
+                + getProprietaire() : Joueur
+                + {abstract} infligerDegats(degats : int, other : Carte)
+                + {abstract} recevoirDegats(degats : int, attaquant : Carte)
+                + {abstract} getAttaque() : int
+                + {abstract} estVolant() : boolean
+            }
+
+            class Animal {
+                - m_attaque : int
+                - m_coutSang : int
+                - m_coutOs : int
+                - m_volant : boolean
+                - m_pouvoir : GenericPouvoir
+                + <<create>> Animal(rang : Rang, slot : int, nom : String, attaque : int, vie : int, sang : int, os : int, volant : boolean, pouvoir : GenericPouvoir)
+                + getPouvoir() : Optional<GenericPouvoir>
+                + setPouvoir(pouvoir : GenericPouvoir)
+                + getAttaque() : int
+                + getCoutSang() : int
+                + getCoutOs() : int
+                + peutEtrePlacee() : boolean
+                + estVolant() : boolean
+                + possedePouvoir() : boolean
+                + infligerDegats(degats : int, other : Carte)
+                + recevoirDegats(degats : int, attaquant : Carte)
+                + sacrifier(player : Joueur)
+                + activerEffetTour()
+                + modifierDegatsEntrants(degats : int) : int
+                + declencherEffetsAttaque(cible : Carte, degats : int)
+                + getNomPouvoir() : Optional<String>
+            }
+
+            class Obstacle {
+                + <<create>> Obstacle(rang : Rang, slot : int, vie : int, nom : String)
+                + infligerDegats(degats : int, other : Carte)
+                + recevoirDegats(degats : int, attaquant : Carte)
+                + getAttaque() : int
+                + estVolant() : boolean
+            }
+
+            package pouvoir {
+
+                abstract class GenericPouvoir {
+                    - m_nom : String
+                    + <<create>> GenericPouvoir(nom : String)
+                    + getNom() : String
+                    + onRecevoirDegats(self : Carte, attaquant : Carte, degats : int)
+                    + onInfligerDegats(self : Carte, cible : Carte, degats : int)
+                    + modifierDegatsEntrants(degats : int) : int
+                    + onSacrifier(self : Carte, player : Joueur)
+                    + onTourCarteDeux(self : Carte)
+                }
+
+                class ContactMortel {
+                    + <<create>> ContactMortel()
+                    + onInfligerDegats(self : Carte, cible : Carte, degats : int)
+                }
+
+                class Coureur {
+                    + <<create>> Coureur()
+                    + onInfligerDegats(self : Carte, cible : Carte, degats : int)
+                }
+
+                class Croissance {
+                    + <<create>> Croissance()
+                    + onTourCarteDeux(self : Carte)
+                }
+
+                class NombreusesVies {
+                    + <<create>> NombreusesVies()
+                    + onSacrifier(self : Carte, player : Joueur)
+                }
+
+                class PiquesPointues {
+                    + <<create>> PiquesPointues()
+                    + onRecevoirDegats(self : Carte, attaquant : Carte, degats : int)
+                }
+
+                class Puant {
+                    + <<create>> Puant()
+                    + modifierDegatsEntrants(degats : int) : int
+                }
+            }
+        }
+    }
+}
+
+package Lanterna {
+    interface Screen {}
+    class TextGraphics {}
+    class KeyStroke {}
+    class SwingTerminalFrame {}
+}
+
+' Héritage
+Animal --|> Carte
+Obstacle --|> Carte
+ContactMortel --|> GenericPouvoir
+Coureur --|> GenericPouvoir
+Croissance --|> GenericPouvoir
+NombreusesVies --|> GenericPouvoir
+PiquesPointues --|> GenericPouvoir
+Puant --|> GenericPouvoir
+
+' Composition
+Inscryption "1" *-- "1" Affichage : m_affichage
+Inscryption "1" *-- "1" GererTouches : m_gererTouches
+Inscryption "1" *-- "1" Plateau : m_plateau
+Inscryption "1" *-- "1" Joueur : m_joueur
+Inscryption "1" *-- "1" Joueur : m_ia
+Plateau "1" *-- "1" Rang : m_rangE
+Plateau "1" *-- "1" Rang : m_rangA
+Plateau "1" *-- "1" Rang : m_rangB
+
+' Agrégation
+Affichage "1" o-- "1" GererTouches : m_gererTouches
+Affichage "1" o-- "1" Screen : m_ecran
+Affichage "1" o-- "1" TextGraphics : m_tg
+Rang "1" o-- "0..4" Carte : m_slots
+Joueur "1" o-- "0..*" Carte : m_main
+Joueur "1" o-- "0..*" Carte : m_pioche
+Inscryption "1" o-- "0..*" Carte : m_cartesProposees
+Animal "1" o-- "0..1" GenericPouvoir : m_pouvoir
+Joueur "1" o-- "0..1" GenericPouvoir : m_pouvoirPierre
+
+' Associations
+Carte "1" --> "0..1" Rang : m_rang
+Carte "1" --> "0..1" Joueur : m_proprietaire
+GererTouches "1" --> "1" Inscryption : m_inscryption
+GererTouches "1" --> "1" Etape : m_etape
+GererTouches "1" --> "1" Action : m_actionSelected
+
+' Dépendances
+Affichage ..> Inscryption : affichageJeu
+Affichage ..> KeyStroke : retourne
+Affichage ..> Cadre : <<create>>
+Affichage ..> SwingTerminalFrame : <<create>>
+Joueur ..> Animal : <<create>>
+Croissance ..> Animal : <<create>>
+
+@enduml

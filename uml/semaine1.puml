@@ -1,0 +1,58 @@
+@startuml inscryption
+
+package inscryption {
+    class Inscryption {
+        - m_affichage : Affichage
+        - joueur : Joueur
+        - ia : IA
+    }
+
+    class Affichage {
+        - ecran : char[][]
+        + initEcran() : void
+        + ecrire(x : int, y : int, chaine : String)
+        + afficherPlateau(plateau : Plateau) : void
+        - afficherRang(rang : Rang, cartes : ArrayList<Carte>)
+    }
+
+    class Joueur {
+        - main : ArrayList<Carte>
+    }
+
+    enum Rang {
+        A
+        B
+    }
+
+    class Plateau {
+        - rang_a : ArrayList<Carte>
+        - rang_b : ArrayList<Carte>
+        + ajouterCarte(rang : Rang, carte : Carte) : void
+        + obtenirListeCartes(rang : Rang) : ArrayList<Carte>
+    }
+
+    enum Stat {
+        Attaque
+        Vie
+        Sang
+        Os
+    }
+
+    class Carte {
+        - active : boolean
+        - attaque : int
+        - vie : int
+        - sang : int
+        - os : int
+        + est_active() : boolean
+        + defausser() : void
+        + get_stat(type : Stat) : int
+    }
+}
+
+Inscryption --> Affichage
+Carte --> Stat
+Plateau --> Rang
+Affichage --> Rang
+
+@enduml

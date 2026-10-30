@@ -1,0 +1,179 @@
+@startuml inscryption
+
+package inscryption {
+    class Inscryption {
+        - m_affichage : Affichage
+        - m_joueur : Joueur
+        - m_ia : Joueur
+        - m_plateau : Plateau
+        - m_tour : int
+        + <<create>> Inscryption()
+        + initialiserPartie() : void
+        + jouerTour() : void
+    }
+
+    package affichage {
+        class Affichage {
+            - ecran : Screen
+            + <<create>> Affichage()
+            + initEcran() : void
+            + afficherPlateau(plateau : Plateau) : void
+            - afficherRang(rang : Rang, cartes : Carte[]) : void
+            - afficherCarte(carte : Carte, x : int, y : int) : void
+            - afficherMain(main : Rang) : void
+            - afficherActions(actions : String[]) : void
+        }
+    }
+
+    package logique {
+
+        class Joueur {
+            - m_main : ArrayList<Carte>
+            - m_sang : int
+            - m_os : int
+            - m_random : Random
+            - m_pioche : int
+            + <<create>> Joueur()
+            + piocher() : void
+            + updateSang(sang : int) : void
+            + updateOs(os : int) : void
+            + getSang() : int
+            + getOs() : int
+        }
+
+        class Rang {
+            - m_slots : Carte[4]
+            + <<create>> Rang()
+            + ajouterCarte(numeroSlot : int, carte : Carte) : boolean
+            + retirerCarte(numeroSlot : int) : boolean
+            + getSlots() : Carte[]
+        }
+
+        class Plateau {
+            - rangE : Rang
+            - rangA : Rang
+            - rangB : Rang
+            + <<create>> Plateau()
+            + ajouterCarte(nomRang : Character, carte : Carte) : boolean
+            + getRang(nomRang : Character) : ArrayList<Carte>
+        }
+
+        package carte {
+            class Animal {
+                - m_nom : String
+                - m_attaque : int
+                - m_sang : int
+                - m_os : int
+                - m_volant : boolean
+                - m_pouvoir : GenericPouvoir
+                + <<create>> Animal(nom : String, attaque : int, vie : int, sang : int, os : int, volant : boolean)
+                + getNom() : String
+                + getAttaque() : int
+                + getSang() : int
+                + getOs() : int
+                + getVolant() : boolean
+                + possedePouvoir() : boolean
+                + infligerDegats(degats : int, other : Carte, this : Carte) : void
+                + <<override>> recevoirDegats(degats : int, attaquant : Carte, self : Carte) : void
+                + sacrifier(player : Joueur) : void
+                + activerCroissance() : void
+            }
+
+            class Obstacle {
+                - m_nom : Sring
+                + <<create>> Obstacle(rang : Rang, slot : int, vie : int, nom : String)
+            }
+
+            abstract Carte {
+                - m_active : boolean
+                - m_vie : int
+                - m_tourencours : int
+                - m_rang : Rang
+                - m_slot : int
+                + <<create>> Carte()
+                + estActive() : boolean
+                + defausser() : void
+                + infligerDegats(degats : int, other : Carte) : void
+                + recevoirDegats(degats : int, attaquant : Carte) : void
+                + getSlot() : int
+                + getRang() : Rang
+                + updateSlot(slot : int) : void
+                + getTourEnCours() : int
+                + updateTourEnCours() : void
+            }
+
+            package pouvoir {
+
+                abstract GenericPouvoir {
+                    - m_nom : String
+                    <<create>> GenericPouvoir(nom : String)
+                    + getNom() : String
+                    + onRecevoirDegats(self : Carte, attaquant : Carte, degats : int) : void
+                    + onInfligerDegats(self : Carte, attaquant : Carte, degats : int) : void
+                    + onSacrifier(self : Carte, player : Joueur) : void
+                    + onTourCarteDeux(self : Carte) : void
+                }
+
+                class ContactMortel{
+                    <<create>> ContactMortel()
+                    + <<override>> onInfligerDegats(self : Carte, attaquant : Carte, degats : int) : void
+
+                }
+
+                class Coureur {
+                    <<create>> Coureur()
+                    + <<override>> onInfligerDegats(self : Carte, attaquant : Carte, degats : int) : void
+                }
+
+                class Croissance {
+                    <<create>> Croissance()
+                    + onTourCarteDeux(self : Carte) : void
+
+                }
+
+                class NombreusesVies {
+                    <<create>> NombreusesVies()
+                    + <<override>> onSacrifier(self : Carte, player : Joueur) : void
+                }
+
+                class PiquesPointues {
+                    <<create>> PiquesPointues()
+                    + <<override>> onRecevoirDegats(self : Carte, attaquant : Carte, degats : int) : void
+                }
+
+                class Puant {
+                    <<create>> Puant()
+                    + <<override>> onRecevoirDegats(self : Carte, attaquant : Carte, degats : int) : void
+                }
+            }
+        }
+    }
+
+
+}
+
+package Lanterna {
+    class Screen {}
+
+}
+
+Animal --|> Carte
+Obstacle --|> Carte
+Inscryption --> Affichage
+Plateau --> Rang
+Inscryption --> Joueur : joueur
+Inscryption --> Joueur : ia
+Inscryption --> Plateau
+Affichage --> Screen
+
+Coureur --|> GenericPouvoir
+Croissance --|> GenericPouvoir
+NombreusesVies --|> GenericPouvoir
+PiquesPointues --|> GenericPouvoir
+Puant --|> GenericPouvoir
+ContactMortel --|> GenericPouvoir
+GenericPouvoir --> Animal :pouvoir attribué
+
+
+
+@enduml
